@@ -4,8 +4,8 @@
 #include "qwebsocketservice.h"
 
 enum class Command { Get, Auth };
-enum class Action { User,Page, UserData, AllUsersData, DemoVideo, Nonce };
-enum class Error { First, Second };
+enum class Action { User, Page, UserData, AllUsersData, DemoVideo, Nonce };
+enum class Error { AccessDenied, BadRequest };
 enum class Field { Auth, Nonce };
 enum UserType {
     Any              = 0,
@@ -36,8 +36,9 @@ init() {
                                  {Action::DemoVideo, "demoVideo"},
                                  {Action::Nonce, "nonce"}};
 
-    WebSocketService::errstrs = {{Error::First, "first"},
-                                 {Error::Second, "second"}};
+    WebSocketService::errstrs = {{Error::AccessDenied, "access denied"},
+                                 {Error::BadRequest, "bad request"}};
+
     WebSocketService::fldstrs = {{Field::Auth, "auth"},
                                  {Field::Nonce, "nonce"}};
 }

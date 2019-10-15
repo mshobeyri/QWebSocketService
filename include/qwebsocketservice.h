@@ -27,10 +27,10 @@ public:
 
     using THIS    = QWebSocketService<Cmd, Act, Err, Field, UserTypeFlag>;
     using UsrType = int;
-    enum SpecialPages { HomePage, BadRequestPage, AccessDeniedPage };
+    enum SpecialCases { ConnectionStablished, BadRequest, AccessDenied };
     using JsPacket =
         JsPacketPrv<Cmd, Act, Err, Field, cmdstrs, actstrs, errstrs, fldstrs>;
-    using Connection = ConnectionPrv<JsPacket>;
+    using Connection = ConnectionPrv<JsPacket, Err>;
     using CallId     = std::pair<Cmd, Act>;
 
 private:
@@ -51,16 +51,16 @@ public:
         QObject::connect(
             &m_wsserver, &QWebSocketServer::newConnection, [this]() {
                 while (m_wsserver.hasPendingConnections()) {
-                    auto socket     = m_wsserver.nextPendingConnection();
-                    auto connection = Connection{*socket};
-                    m_connections.push_back(connection);
-                    connection.init(*this, m_routemap, m_specialRouteMap);
+                    auto* socket     = m_wsserver.nextPendingConnection();
+                    auto* connection = new Connection{socket};
+                    connection->init(*this, m_routemap, m_specialRouteMap);
                     QObject::connect(
                         socket,
                         &QWebSocket::disconnected,
                         [this, connection]() {
-                            m_connections.remove(connection);
+                            m_connections.remove(*connection);
                         });
+                    m_connections.push_back(*connection);
                 }
             });
     }
@@ -70,7 +70,7 @@ public:
         return *this;
     }
 
-    QWebSocketService& routeSpecial(SpecialPages page, CallBack f) {
+    QWebSocketService& route(SpecialCases page, CallBack f) {
         m_specialRouteMap.insert(page, f);
         return *this;
     }
@@ -79,27 +79,21 @@ public:
     }
 
 private:
+    std::list<Connection> m_connections;
+    QWebSocketServer m_wsserver{"wsserver", QWebSocketServer::NonSecureMode};
     QMap<CallId, RouteObj>       m_routemap;
-    QMap<SpecialPages, CallBack> m_specialRouteMap{
-        {SpecialPages::HomePage,
+    QMap<SpecialCases, CallBack> m_specialRouteMap{
+        {SpecialCases::ConnectionStablished,
+         [](const Connection&, const JsPacket&) {}},
+        {SpecialCases::BadRequest,
          [](const Connection& c, const JsPacket&) {
-             c.sendMessage("HomePage - register home page using "
+             c.sendMessage("Bad request - register bad request using "
                            "server.registerSpecial()");
          }},
-        {SpecialPages::BadRequestPage,
-         [](const Connection& c, const JsPacket&) {
-             c.sendMessage("Bad request - register bad request page using "
-                           "server.registerSpecial()");
-         }},
-        {SpecialPages::AccessDeniedPage,
-         [](const Connection& c, const JsPacket&) {
-             c.sendMessage("Access denied - register access denied page using "
+        {SpecialCases::AccessDenied, [](const Connection& c, const JsPacket&) {
+             c.sendMessage("Access denied - register access denied using "
                            "server.registerSpecial()");
          }}};
-    std::list<Connection> m_connections;
-
-
-    QWebSocketServer m_wsserver{"wsserver", QWebSocketServer::NonSecureMode};
 };
 
 template <class Cmd, class Act, class Err, class Field, class UserTypeFlag>

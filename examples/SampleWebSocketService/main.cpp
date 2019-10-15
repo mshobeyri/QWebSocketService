@@ -9,8 +9,14 @@ main(int argc, char* argv[]) {
     init();
     WebSocketService service;
 
-    service.routeSpecial(WebSocketService::HomePage, homePage)
-        .routeSpecial(WebSocketService::AccessDeniedPage, accessDenied)
+    service.route(WebSocketService::ConnectionStablished, homePage)
+        .route(WebSocketService::AccessDenied, accessDenied)
+        .route(
+            WebSocketService::BadRequest,
+            [](WebSocketService::Connection& c,
+               const WebSocketService::JsPacket&) {
+                c.sendError(Error::BadRequest);
+            })
         .route(
             Command::Get,
             Action::Nonce,

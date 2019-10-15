@@ -62,10 +62,11 @@ struct JsPacketPrv : public QJsonObject {
         QJsonObject::insert("act", str.isEmpty() ? "unknown_act" : str);
     }
     JsPacketPrv& insert(Err error) {
-        auto str = findIn(error, fldstrs);
+        auto str = findIn(error, errstrs);
         insert(Status::Error);
-        QJsonObject::insert("error_code", error);
+        QJsonObject::insert("error_code", static_cast<int>(error));
         QJsonObject::insert("error_message", str == "" ? "unknown_err" : str);
+        return *this;
     }
     JsPacketPrv& insert(Status status) {
         QJsonObject::insert("status", static_cast<int>(status));

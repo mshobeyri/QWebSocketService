@@ -31,28 +31,16 @@ authenticate(
 
 void
 homePage(
-    const WebSocketService::Connection& c, const WebSocketService::JsPacket&) {
-    QTimer* t = new QTimer;
-    QObject::connect(t, &QTimer::timeout, [c] {
-        static int i = 0;
-        i++;
-        c.sendMessage(
-            QString("<html><head><title>Bye-bye baby bye-bye</title>"
-                    "<style>body { background-color: #111 }"
-                    "h1 { font-size:4cm; text-align: center; color: black;"
-                    " text-shadow: 0 0 2mm }</style></head>"
-                    "<body><h1>Goodbye, world!%1</h1>"
-                    " <button type=\"button\" onclick=\"printHi()\">Click "
-                    "Me!</button> </body></html>")
-                .arg(i));
-    });
-    t->setSingleShot(false);
-    t->start(1000);
+    const WebSocketService::Connection& c,
+    const WebSocketService::JsPacket&   req) {
+    WebSocketService::JsPacket res(req);
+    res.insert("message", "wellcome");
+    c.sendPacket(res);
 }
 void
 accessDenied(
-    const WebSocketService::Connection& c, const WebSocketService::JsPacket&) {
-    c.sendMessage("access denied");
+    WebSocketService::Connection& c, const WebSocketService::JsPacket&) {
+    c.sendError(Error::AccessDenied);
 }
 void
 getDemoVideo(

@@ -2,4 +2,4 @@ TEMPLATE = subdirs
 
 SUBDIRS += SampleWebSocketService
 
-SampleWebSocketService.file = examples/SampleWebsite/SampleWebSocketService.pro
+SampleWebSocketService.file = examples/SampleWebSocketService/SampleWebSocketService.pro
