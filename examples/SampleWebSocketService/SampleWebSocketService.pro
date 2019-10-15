@@ -26,7 +26,7 @@ HEADERS += \
     routes.h \
     init.h
 
-include(../../QWebsite.pri)
+include(../../QWebSocketService.pri)
 
 RESOURCES += \
     resources.qrc
