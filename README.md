@@ -1,2 +1,2 @@
-# QWebsite
-Crate websocket base website easily
+# QWebSocketService
+Crate websocket base service easily
