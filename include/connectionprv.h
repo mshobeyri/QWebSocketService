@@ -1,0 +1,4 @@
+#ifndef CONNECTIONPRV_H
+#define CONNECTIONPRV_H
+
+#endif // CONNECTIONPRV_H
