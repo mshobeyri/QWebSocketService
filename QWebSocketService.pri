@@ -5,4 +5,4 @@ HEADERS += \
     $$PWD/include/qwebsocketservice.h \
     $$PWD/include/connectionprv.h
 
-CONFIG += c++11
+CONFIG += c++11 c++14

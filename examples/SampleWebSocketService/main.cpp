@@ -39,7 +39,7 @@ main(int argc, char* argv[]) {
             Command::Get,
             Action::UserData,
             userSelfData,
-            UserType::AnyAuthenticated)
+            UserType::Any)
         .route(
             Command::Get,
             Action::AllUsersData,

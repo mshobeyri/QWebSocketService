@@ -39,9 +39,9 @@ template <
 struct JsPacketPrv : public QJsonObject {
     JsPacketPrv(const QJsonObject& jsobj) : QJsonObject(jsobj) {}
     JsPacketPrv(const JsPacketPrv& request) : QJsonObject() {
-        insert("cmd", request.value("cmd"));
-        insert("act", request.value("act"));
-        insert("stan", request.value("stan"));
+        QJsonObject::insert("cmd", request.value("cmd"));
+        QJsonObject::insert("act", request.value("act"));
+        QJsonObject::insert("stan", request.value("stan"));
     }
     JsPacketPrv() {}
     JsPacketPrv&

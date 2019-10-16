@@ -1,6 +1,6 @@
 QT -= gui
 QT += websockets
-CONFIG += c++11 console
+CONFIG += c++11 c++14 c++1z console
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
