@@ -16,10 +16,7 @@
 
 
 template <class Cmd, class Act, class Err, class Field, class UserTypeFlag>
-class QWebSocketService
-{
-
-public:
+struct QWebSocketService {
     static QVector<QPair<Cmd, QString>>   cmdstrs;
     static QVector<QPair<Act, QString>>   actstrs;
     static QVector<QPair<Err, QString>>   errstrs;
@@ -27,7 +24,12 @@ public:
 
     using THIS    = QWebSocketService<Cmd, Act, Err, Field, UserTypeFlag>;
     using UsrType = int;
-    enum SpecialCases { ConnectionStablished, BadRequest, AccessDenied };
+    enum SpecialCases {
+        ConnectionEstablished,
+        ConnectionLost,
+        BadRequest,
+        AccessDenied
+    };
     using JsPacket =
         JsPacketPrv<Cmd, Act, Err, Field, cmdstrs, actstrs, errstrs, fldstrs>;
     using Connection = ConnectionPrv<JsPacket, Err>;
@@ -36,7 +38,6 @@ public:
 private:
     using CallBack = std::function<void(Connection&, const JsPacket&)>;
     using RouteObj = std::pair<CallBack, UsrType>;
-
 
 public:
     QWebSocketService() {}
@@ -54,16 +55,19 @@ public:
                     auto* socket     = m_wsserver.nextPendingConnection();
                     auto* connection = new Connection{socket};
                     connection->init(*this, m_routemap, m_specialRouteMap);
+                    m_connections.push_back(*connection);
                     QObject::connect(
                         socket,
                         &QWebSocket::disconnected,
                         [this, connection]() {
-                            m_connections.remove(*connection);
+                            m_specialRouteMap.value(
+                                SpecialCases::ConnectionLost)(
+                                *connection, JsPacket{});
                         });
-                    m_connections.push_back(*connection);
                 }
             });
     }
+
     QWebSocketService& route(Cmd c, Act a, CallBack f, UsrType userType = 0) {
         CallId cid{c, a};
         m_routemap.insert(cid, std::make_pair(f, userType));
@@ -74,25 +78,34 @@ public:
         m_specialRouteMap.insert(page, f);
         return *this;
     }
+
     QWebSocketServer& server() {
+        return m_wsserver;
+    }
+
+    QList<Connection>& connections() {
         return m_connections;
     }
 
 private:
-    std::list<Connection> m_connections;
-    QWebSocketServer m_wsserver{"wsserver", QWebSocketServer::NonSecureMode};
+    QList<Connection> m_connections;
+    QWebSocketServer  m_wsserver{"wsserver", QWebSocketServer::NonSecureMode};
     QMap<CallId, RouteObj>       m_routemap;
     QMap<SpecialCases, CallBack> m_specialRouteMap{
-        {SpecialCases::ConnectionStablished,
+        {SpecialCases::ConnectionEstablished,
          [](const Connection&, const JsPacket&) {}},
+        {SpecialCases::ConnectionLost,
+         [this](const Connection& c, const JsPacket&) {
+             m_connections.removeAll(c);
+         }},
         {SpecialCases::BadRequest,
          [](const Connection& c, const JsPacket&) {
-             c.sendMessage("Bad request - register bad request using "
-                           "server.registerSpecial()");
+             c.sendMessage("Bad request - route bad request using "
+                           "server.route()");
          }},
         {SpecialCases::AccessDenied, [](const Connection& c, const JsPacket&) {
-             c.sendMessage("Access denied - register access denied using "
-                           "server.registerSpecial()");
+             c.sendMessage("Access denied - route access denied using "
+                           "server.route()");
          }}};
 };
 

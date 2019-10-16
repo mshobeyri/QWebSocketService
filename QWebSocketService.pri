@@ -4,3 +4,5 @@ HEADERS += \
     $$PWD/include/jspacketprv.h \
     $$PWD/include/qwebsocketservice.h \
     $$PWD/include/connectionprv.h
+
+CONFIG += c++11

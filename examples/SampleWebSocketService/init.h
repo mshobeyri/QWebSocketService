@@ -6,7 +6,7 @@
 enum class Command { Get, Auth };
 enum class Action { User, Page, UserData, AllUsersData, DemoVideo, Nonce };
 enum class Error { AccessDenied, BadRequest };
-enum class Field { Auth, Nonce };
+enum class Field { Auth, Nonce, Name, Family, Users };
 enum UserType {
     Any              = 0,
     DemoUser         = 1,
@@ -40,7 +40,10 @@ init() {
                                  {Error::BadRequest, "bad request"}};
 
     WebSocketService::fldstrs = {{Field::Auth, "auth"},
-                                 {Field::Nonce, "nonce"}};
+                                 {Field::Nonce, "nonce"},
+                                 {Field::Name, "name"},
+                                 {Field::Family, "family"},
+                                 {Field::Users, "users"}};
 }
 
 #endif // INIT_H

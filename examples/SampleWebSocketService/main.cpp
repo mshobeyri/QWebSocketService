@@ -9,7 +9,7 @@ main(int argc, char* argv[]) {
     init();
     WebSocketService service;
 
-    service.route(WebSocketService::ConnectionStablished, homePage)
+    service.route(WebSocketService::ConnectionEstablished, connectionEstablished)
         .route(WebSocketService::AccessDenied, accessDenied)
         .route(
             WebSocketService::BadRequest,
