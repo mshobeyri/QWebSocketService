@@ -15,12 +15,6 @@ enum UserType {
     AnyAuthenticated = DemoUser | SuperUser | Admin
 };
 
-enum class Page {
-    Home,
-    First,
-};
-
-
 using WebSocketService =
     QWebSocketService<Command, Action, Error, Field, UserType>;
 
